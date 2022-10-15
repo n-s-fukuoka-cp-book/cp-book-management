@@ -524,10 +524,10 @@ function rental_end() {
         var getcell = isExisted + 1;
         //check
         var check = mail_sheet.getRange(getcell, 8).getValue();
-        if (check == "") {
+        if (check == "メール送信" || check == "") {
           Logger.log("正解の処理")
           //check
-          var wirte = mail_sheet.getRange(getcell, 8).setValue("🟣");
+          var wirte = mail_sheet.getRange(getcell, 8).setValue("返却終了");
           var management_code = mail_sheet.getRange(getcell, 5).getValue();
           var book_title = mail_sheet.getRange(getcell, 6).getValue();
           var index = mail_sheet.getRange(getcell, 7).getValue().toString();
@@ -677,41 +677,69 @@ function double_delete() {
 }
 function return_notice() {
   var active_sheet = SpreadsheetApp.getActiveSpreadsheet(); //現在のシート取得
-  var mail_sheet = active_sheet.getSheetByName("メール処理用");//指定名のシート取
-  var lastrow = mail_sheet.getLastRow() - 2;
-  var date = mail_sheet.getRange(2, 3, lastrow).getValues().flat();
-  var date_new = new Date();
-  date_new.setDate(date_new.getDate() + 1);
-  var todayStr = Utilities.formatDate(date_new, 'JST', 'yyyy-MM-dd');
-  Logger.log(todayStr);
-  date_list = [];
-  for (var i = 0; i < date.length; i++) {
-    var dates = Utilities.formatDate(date[i], 'JST', 'yyyy-MM-dd');
-    date_list.push(dates)
+  var mail_sheet = active_sheet.getSheetByName("メール処理用");//指定名のシート取得
+  var lastrow = mail_sheet.getLastRow() - 1;
+  var status = mail_sheet.getRange(2, 8, lastrow).getValues().flat();
+  Logger.log(status)
+  var date_list = mail_sheet.getRange(2, 3, lastrow).getValues().flat();//Sat Oct 22 00:00:00 GMT+09:00 2022
+  Logger.log(date_list)
+  var date_list_str = []
+  for (var i = 0; i < date_list.length; i++) {
+    var dates = Utilities.formatDate(date_list[i], 'JST', 'yyyy-MM-dd').toString();
+    date_list_str.push(dates)
   }
-  Logger.log(date_list);
+  Logger.log(date_list_str)
+  var today = new Date();
+  today.setDate(today.getDate() + 1);
+  var today = Utilities.formatDate(today, 'JST', 'yyyy-MM-dd').toString();
+  Logger.log(today);
+//処理回数の特定をする
+// var num = 0;
+// for (var i = 0 ; i< status.length;i++){
+//   var isExisted = status[i].indexOf("メール送信")
+//   if (isExisted != -1){
+//     var num = num+1
+//   }
+//   var isExisted = status[i].indexOf("返却終了")
+//   if (isExisted != -1){
+//     var num = num+1
+//   }
+// }
+//   Logger.log(status.length-num)
+//   var count = status.length-num
 
-  for (var i = 0; i < lastrow; i++) {//error発生予想
-    var isExisted = date_list[i].indexOf(todayStr);
-    if (isExisted != -1) {
-      Logger.log(isExisted)
-      // Logger.log(isExisted + 2)
-      // var get_lastrow = isExisted + 2;
-      // var mail_address = mail_sheet.getRange(get_lastrow, 2).getValue();
-      // Logger.log(mail_address)
-      // var mail_url = mail_sheet.getRange(get_lastrow, 4).getValue();
-      // Logger.log(mail_url)
-      // var book_title = mail_sheet.getRange(get_lastrow, 6).getValue().split(",");
-      // var count = mail_sheet.getRange(get_lastrow, 5).getValue().split(",");
-      // var recipient = mail_address;//送信先のメールアドレス
-      // var subject = '【重要】本の返却期限が迫っています'; 　　     　 　//件名
-      // var body = ("いつもご利用ありがとうございます。\n\nNS高等学校福岡キャンパス図書管理システムです。\n\n返却期限が明日に迫っている本がありますので、お知らせいたします。\n\n返却期限が迫ってる本が[" + count.length + "]冊あります。\n\n詳細は以下を確認してください。\n\返却期限が迫っている本\n---------------------------\n" + book_title.join("\n\n") + "\n---------------------------\n返却時に以下のバーコードを使うとすぐに返却することができます！\n\n" + mail_url)
-      // const options = { name: 'NS高福岡キャンパス図書委員会:図書管理システム【自動送信】' };  //送信者の名前
-      // Logger.log(body)
-      // // GmailApp.sendEmail(recipient, subject, body, options);//メール送信処理
-      // Logger.log(get_lastrow)
+//処理回数の特定をする
+  var isExisted = status.indexOf("未処理")
+  if (isExisted != -1) {
+    if (today == date_list_str[isExisted]) {
+      Logger.log("正の処理")
+      var write = mail_sheet.getRange(isExisted + 2, 8).setValue("メール送信");
+
+      Logger.log(isExisted + 2)
+      var get_lastrow = isExisted + 2;
+      var mail_address = mail_sheet.getRange(get_lastrow, 2).getValue();
+      Logger.log(mail_address)
+      var mail_url = mail_sheet.getRange(get_lastrow, 4).getValue();
+      Logger.log(mail_url)
+      var book_title = mail_sheet.getRange(get_lastrow, 6).getValue().split(",");
+      var count = mail_sheet.getRange(get_lastrow, 5).getValue().split(",");
+      var recipient = mail_address;//送信先のメールアドレス
+      var subject = '【重要】本の返却期限が迫っています'; 　　     　 　//件名
+      var body = ("いつもご利用ありがとうございます。\n\nNS高等学校福岡キャンパス図書管理システムです。\n\n返却期限が明日に迫っている本がありますので、お知らせいたします。\n\n返却期限が迫ってる本が[" + count.length + "]冊あります。\n\n詳細は以下を確認してください。\n\返却期限が迫っている本\n---------------------------\n" + book_title.join("\n\n") + "\n---------------------------\n返却時に以下のバーコードを使うとすぐに返却することができます！\n\n" + mail_url)
+      const options = { name: 'NS高福岡キャンパス図書委員会:図書管理システム【自動送信】' };  //送信者の名前
+      Logger.log(body)
+      // GmailApp.sendEmail(recipient, subject, body, options);//メール送信処理
+    } else {
+      Logger.log("次の列へ移動")
     }
+  } else {
+    Logger.log("該当書物なし　処理を終了します。")
+    return;
   }
+
+
+
+
 }
 
 
@@ -762,6 +790,18 @@ function write_rog(rog_msg) {
 
 // }
 
+function test() {
+  var list = ["あ", "い", "あ", "あ", "う"];
+  word = "あ"
+  Logger.log(list)
+  for (var i = 0; i < list.length; i++) {
+    var isExisted = list[i].indexOf(word)
+    if (isExisted != -1) {
+      Logger.log(isExisted)
+    }
+  }
+
+}
 
 
 
@@ -774,25 +814,49 @@ function write_rog(rog_msg) {
 
 
 
+  // var active_sheet = SpreadsheetApp.getActiveSpreadsheet(); //現在のシート取得
+  // var mail_sheet = active_sheet.getSheetByName("メール処理用");//指定名のシート取
+  // var lastrow = mail_sheet.getLastRow() + 1;
+  // var date = mail_sheet.getRange(2, 3, lastrow).getValues().flat();
+  // var date_new = new Date();
+  // date_new.setDate(date_new.getDate() + 1);
+  // var todayStr = Utilities.formatDate(date_new, 'JST', 'yyyy-MM-dd');
+  // Logger.log(todayStr);
+  // date_list = [];
+  // for (var i = 0; i < date.length; i++) {
+  //   var dates = Utilities.formatDate(date[i], 'JST', 'yyyy-MM-dd');
+  //   date_list.push(dates)
+  // }
+  // Logger.log(date_list);
+
+  // var rental_status = mail_sheet.getRange(2, 8, lastrow).getValues().flat();
+  // Logger.log(rental_status)
+  // var status =""
+
+  // for (var i = 0; i < lastrow; i++) {//error発生予想
+  //   var isExisted = rental_status[i].indexOf(status);
+  //   if (isExisted != -1) {
+  //     Logger.log(isExisted)
+  //     var write = mail_sheet.getRange(isExisted,8).setValue("メール送信");
+  //   }
+  // }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+      // Logger.log(isExisted + 2)
+      // var get_lastrow = isExisted + 2;
+      // var mail_address = mail_sheet.getRange(get_lastrow, 2).getValue();
+      // Logger.log(mail_address)
+      // var mail_url = mail_sheet.getRange(get_lastrow, 4).getValue();
+      // Logger.log(mail_url)
+      // var book_title = mail_sheet.getRange(get_lastrow, 6).getValue().split(",");
+      // var count = mail_sheet.getRange(get_lastrow, 5).getValue().split(",");
+      // var recipient = mail_address;//送信先のメールアドレス
+      // var subject = '【重要】本の返却期限が迫っています'; 　　     　 　//件名
+      // var body = ("いつもご利用ありがとうございます。\n\nNS高等学校福岡キャンパス図書管理システムです。\n\n返却期限が明日に迫っている本がありますので、お知らせいたします。\n\n返却期限が迫ってる本が[" + count.length + "]冊あります。\n\n詳細は以下を確認してください。\n\返却期限が迫っている本\n---------------------------\n" + book_title.join("\n\n") + "\n---------------------------\n返却時に以下のバーコードを使うとすぐに返却することができます！\n\n" + mail_url)
+      // const options = { name: 'NS高福岡キャンパス図書委員会:図書管理システム【自動送信】' };  //送信者の名前
+      // Logger.log(body)
+      // // GmailApp.sendEmail(recipient, subject, body, options);//メール送信処理
+      // Logger.log(get_lastrow)
 
 
 
