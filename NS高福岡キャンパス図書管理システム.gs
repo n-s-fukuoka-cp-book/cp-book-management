@@ -63,7 +63,7 @@ function DB() {
       .setHeight(100);
     SpreadsheetApp.getUi().showModalDialog(htmlOutput, 'Error...');
   }
-  var rog_msg = "~DBの登録・更新~を実行しました。/DB";
+  var rog_msg = "~DBの登録・更新~を実行しました。/DB 処理件数　→" + i + "error件数　→" + e_count;
   write_rog(rog_msg);
 }
 
@@ -369,7 +369,7 @@ function rental_start() {
     } else {
       for (var i = 0; i < book_count; i++) {
         var management_code = Browser.inputBox("貸出する本のN高が貼ったバーコードを入力して下さい", Browser.Buttons.OK_CANCEL)
-        var management_code_len = management_code.length
+        var management_code_len = management_code.length//追加処理　　
         if (management_code == "cancel") {
           Browser.msgBox("登録を中断します。今までの作業分は自動で登録されています。\\n未登録分を再度処理してください");
           var rog_msg = "~貸出処理を中断~を実行しました。/貸出";
@@ -379,7 +379,7 @@ function rental_start() {
           Logger.log(management_code)
           if (management_code_len != 8) {
             rental_sheet_clear();
-            var error_msg = Browser.msgBox("管理用バーコードを入力してください。　\\n本の裏に貼ってるA10......から始まるバーコードです。\\n今までの作業分は自動で登録されています。\\n未登録分を再度処理してください");
+            var error_msg = Browser.msgBox("管理用バーコードを入力してください。　\\n本の裏に貼ってるA10......から始まるバーコードです。\\n今までの作業分は自動で登録されています。\\n未登録分を再度処理してください\\n今、問題が発生した本から再度吸い直してください。");
             var rog_msg = "~貸出処理を中断/管理コードの桁数が正しくありません~を実行しました。/貸出";
             write_rog(rog_msg);
             return;
@@ -443,7 +443,8 @@ function rental_start() {
         }
       }
     }
-    var rood = sheet.getRange(sheet_lastrow + 1, 3);
+    var sheet_lastrow = sheet.getLastRow() + 1
+    var rood = sheet.getRange(sheet_lastrow, 3);
     var write = rood.setValue("🔴");
     Browser.msgBox("処理を完了しました。フォームクリアを実行します。")
     rental_sheet_clear();
@@ -546,14 +547,15 @@ function rental_end() {
           var write = text_change.setValue("参照列番");
           var active_sheet = SpreadsheetApp.getActiveSpreadsheet(); //現在のシート取得
           var db_sheet = active_sheet.getSheetByName("DB");//指定名のシート取得
-
+          var book_title_list = [];
           for (var i = 0; i < rental_end_list_count; i++) {
             rental_book_list.push([
               [write_management[i]],
               [write_book_title[i]],
               [write_index[i]]
             ])
-            Logger.log(rental_book_list)
+            book_title_list.push(write_book_title[i])
+
           }
           var rental_list_cell = sheet.getRange(4, 1, rental_end_list_count, 3);
           var rental_list_write = rental_list_cell.setValues(rental_book_list);
@@ -564,7 +566,7 @@ function rental_end() {
           }
           var text_change = sheet.getRange("C3");
           var write = text_change.setValue("処理状況");
-          Browser.msgBox("返却を完了しました。\\n図書委員一同、またのご利用を待ちしております。");
+          Browser.msgBox("返却処理完了しました。\\n図書委員一同、またのご利用を待ちしております。\\n\\n\\n処理した本\\n------------------------------------------------------------\\n" + book_title_list.join("\\n") + "\\n------------------------------------------------------------\\n返却番号[" + book_count + "]");
           var rog_msg = "~レンタル番号バーコード返却~を実行しました。/返却  返却用処理番号→" + book_count;
           write_rog(rog_msg);
           rental_sheet_clear();
@@ -648,6 +650,8 @@ function rental_end() {
         var msgBox = Browser.msgBox("🔷がついている分は登録が完了しています。\\n続きがある場合は場合は処理を実行してください")
       }
     }
+    var sheet_lastrow = sheet.getLastRow() + 1
+    var rood = sheet.getRange(sheet_lastrow, 3);
     var write = rood.setValue("🔷");
     Browser.msgBox("返却を完了しました。\\n図書委員一同、またのご利用を待ちしております。")
     rental_sheet_clear();
@@ -741,9 +745,12 @@ function write_rog(rog_msg) {
   var active_sheet = SpreadsheetApp.getActiveSpreadsheet(); //現在のシート取得
   var rog_sheet_get = active_sheet.getSheetByName("履歴");//指定名のシート取得
   rog_sheet_get.insertRows(2, 1);
-  var mode = "テスト処理期間"
+  var mode = "本処理モード"
   var date = new Date()
   var user_name = Session.getActiveUser();
+  if (user_name == ""){
+    user_name = "onOpen関数"
+  }
   var sheet = rog_sheet_get.getRange("A2");
   var write = sheet.setValue(date);
   var sheet = rog_sheet_get.getRange("B2");
@@ -751,26 +758,6 @@ function write_rog(rog_msg) {
   var sheet = rog_sheet_get.getRange("C2");
   var write = sheet.setValue(user_name);
 }
-
-function test() {
-  var active_sheet = SpreadsheetApp.getActiveSpreadsheet(); //現在のシート取得
-  var mail_sheet = active_sheet.getSheetByName("メール処理用");//指定名のシート取得
-  var lastrow = mail_sheet.getLastRow() - 1;
-  var today = new Date();
-  today.setDate(today.getDate() + 1);
-  var today = Utilities.formatDate(today, 'JST', 'yyyy-MM-dd').toString();
-  Logger.log(today);
-  var date_list = mail_sheet.getRange(2, 3, lastrow).getValues().flat();//Sat Oct 22 00:00:00 GMT+09:00 2022
-  var date_list_str = []
-  for (var i = 0; i < date_list.length; i++) {
-    var dates = Utilities.formatDate(date_list[i], 'JST', 'yyyy-MM-dd').toString();
-    date_list_str.push(dates)
-  }
-  Logger.log(date_list_str)
-
-  Logger.log(today === date_list_str[2])
-}
-
 
 
 
