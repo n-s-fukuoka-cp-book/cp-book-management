@@ -274,7 +274,7 @@ function word_search() {
         if (status_Cell_data[i] == "貸出可") {
           rental_day_Cell_data_JST = "キャンパス在中"
         } else {
-          rental_day_Cell_data_JST.setDate(rental_day_Cell_data_JST.getDate() + 7);
+          rental_day_Cell_data_JST.setDate(rental_day_Cell_data_JST.getDate() + 14);
           var rental_day_Cell_data_JST = Utilities.formatDate(rental_day_Cell_data[i], "JST", "M/d") + "返却予定";//形式変換
         }
         write_in_data.push(
@@ -456,7 +456,7 @@ function rental_start() {
       var check = (user_name.substring(user_name.length - 10))
       if (check == "@nnn.ed.jp") {
         var date = new Date();
-        date.setDate(date.getDate() + 7);
+        date.setDate(date.getDate() + 14);
         var date = Utilities.formatDate(date, "JST", "Y/M/d")
         try {
           var rog_msg = "~貸出~を実行しました。/貸出" + mail_address + "に貸出案内のメールを送信しました。Gmail残り回数→" + MailApp.getRemainingDailyQuota();
@@ -571,10 +571,10 @@ function rental_end() {
           write_rog(rog_msg);
           rental_sheet_clear();
         } else {
-          Browser.msgBox("このバーコードは処理が完了しています。\\n間違えだと思われる場合は図書委員へお知らせください。")
+          Browser.msgBox("このバーコードは処理が完了しています。\\n間違いだと思われる場合は図書委員へお知らせください。")
         }
       } else {
-        Browser.msgBox("この処理番号は無効です。\\n間違えだと思われる場合は図書委員へお知らせください。")
+        Browser.msgBox("この処理番号は無効です。\\n間違いだと思われる場合は図書委員へお知らせください。")
       }
     } catch (e) {
       Browser.msgBox("大変申し訳ございません。\\n返却の手続きの途中でエラーが発生しました。\\nお手数ですが、図書委員へお知らせください。");
@@ -758,13 +758,6 @@ function write_rog(rog_msg) {
   var sheet = rog_sheet_get.getRange("C2");
   var write = sheet.setValue(user_name);
 }
-
-
-
-
-
-
-
 
 
 
