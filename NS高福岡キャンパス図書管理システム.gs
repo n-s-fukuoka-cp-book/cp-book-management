@@ -1,3 +1,8 @@
+function onOpen(){
+  Browser.msgBox("いつもご利用ありがとうございます。\\n\\nこちらのシートを利用注意点\\n・検索・貸出・返却以外は扱わないようにお願いします。\\n・基本的にセルを編集する動作はないので直接数字を入力などはしないでください\\n（ボタンを押して処理する動作のみでお願いします。）\\n・メールアドレスを入力する箇所がありますが、ニックネームなどを利用されて構いません。\\n（メールアドレス入れていただくと、より便利に使うことができます。）\\n\\nなにか不明な点がありましたら、お近くの図書委員にお声掛けください。")
+  search_sheet_clear()
+}
+
 function DB() {
   e_count = 0;
   var active_sheet = SpreadsheetApp.getActiveSpreadsheet(); //現在のシート取得
@@ -153,15 +158,14 @@ function Register() {
   var db_sheet = active_in_sheet.getSheetByName("DB");//指定名のシート取得
   var lastrow = db_sheet.getLastRow() + 1;//DBリスト　最終行を取得　
   try {
-    var range = db_in_sheet.getRange(8, 1, in_lastrow, 6);
-    var values = range.getValues();//登録用データ取得
-    var range = db_sheet.getRange(lastrow, 1, in_lastrow, 6);
-    var values = range.setValues(values);//DBに書き込み
+    var range = db_in_sheet.getRange(8, 1, in_lastrow, 6).getValues();//登録用データ取得
+    var range = db_sheet.getRange(lastrow, 1, in_lastrow, 6).setValues(range);//DBに書き込み;
     DB();
     var in_sheet = db_in_sheet.getRange("A8:G107");
     var msg = Browser.msgBox("登録作業が完了しました。データーはDBを確認してください。FORMをクリアします。");
     var in_sheet_crystal = in_sheet.clearContent()
   } catch (e) {
+    Logger.log(e)
     var msg = Browser.msgBox("処理の途中でerrorが発生しました。\\n”登録DB”に値が入っていないか、DBの編集権限がない可能性があります。");
   }//例外処理
   var rog_msg = "~読み込んだ作業のDB登録~を実行しました。/DB登録";
@@ -176,7 +180,7 @@ function big_in() {
     return;
   } else {
     var htmlOutput = HtmlService
-      .createHtmlOutput("処理を続行します。　右上の✗を押してください。")
+      .createHtmlOutput("処理を続行します。　右上の✗を押してください。<br>この処理は中断することができません。<br>誤って実行した場合は図書委員に連絡してください。")
       .setSandboxMode(HtmlService.SandboxMode.IFRAME)
       .setWidth(400)
       .setHeight(100);
@@ -298,12 +302,12 @@ function word_search() {
     var in_msg = in_msgA + search_word + in_msgB + Cell_count + in_msgC
     var in_msg_ = msg.setValue(in_msg)
   } catch (e) {
-    set_e_code = "入力いただいたキーワードでは一致する本は見つけられませんでした。<br><br>本のタイトルと同じキーワードを使用してください。<br>タイトル→ITパスポート<br>○→パスポート<br>☓→ぱすぽーと<br><br>図書委員会への本の購入リクエストは次のフォームから送信してください。<br>https://forms.gle/Ho4ZfuBXZp3XnRLr7<br><br>NS高福岡キャンパスにない本をお探しの場合は次のリンクから本を探してください。<br>https://books.google.co.jp/";
+    set_e_code = "入力いただいたキーワードでは一致する本は見つけられませんでした。<br><br>本のタイトルと同じキーワードを使用してください。<br>タイトル→ITパスポート<br>○→パスポート<br>☓→ぱすぽーと<br><br>図書委員会への本の購入リクエストは次のフォームから送信してください。<br>https://forms.gle/Ho4ZfuBXZp3XnRLr7<br><br>もしかして？　こちらのURLに本があった場合はタブレットで読めます！<br>https://bookwalker.jp/search/?word=" + search_word + "&order=score&qsub=1<br><br>NS高福岡キャンパスにない本をお探しの場合は次のリンクから本を探してください。<br>https://books.google.co.jp/";
     var htmlOutput = HtmlService
       .createHtmlOutput(set_e_code)
       .setSandboxMode(HtmlService.SandboxMode.IFRAME)
       .setWidth(650)
-      .setHeight(350);
+      .setHeight(410);
     SpreadsheetApp.getUi().showModalDialog(htmlOutput, 'お探しのものを見つけられませんでした。');
   }
   var rog_msg = "~指定ワードの検索~を実行しました。/検索　検索ワード→" + search_word + "/  ヒット件数→" + Cell_count;
@@ -343,7 +347,7 @@ function rental_start() {
   var data_count = []
   var management = []
   rental_sheet_clear();
-  var book_count = Browser.inputBox("貸出をする本の冊数を入力してください", Browser.Buttons.OK_CANCEL)
+  var book_count = Browser.inputBox("貸出をする本の冊数を入力してください\\n(10冊以上の場合は複数回に分けてください。)", Browser.Buttons.OK_CANCEL)
   if (book_count == "cancel") {
     Browser.msgBox("登録を中断します。今までの作業分を登録するか、破棄してください。");
     var rog_msg = "~貸出処理を中断~を実行しました。/貸出";
@@ -396,6 +400,7 @@ function rental_start() {
             var db_management_code = db_sheet.getRange(2, 1, db_lastrow);
             var db_management_code_data = db_management_code.getValues().flat();//管理コード取得
             db_management_code_data.toString();
+            Logger.log(db_management_code_data)
             var db_data_list = []
             var word_Cell = db_sheet.getRange(2, 7, db_lastrow);
             var word_Cell_data = word_Cell.getValues().flat();//ブックタイトル取得
@@ -505,7 +510,7 @@ function rental_start() {
 
 function rental_end() {
   rental_sheet_clear();
-  var book_count = Browser.inputBox("返却をする本の冊数を入力してください\\n貸出のときにメールに届いたバーコードを使用する方\\nはここで読み込んでください", Browser.Buttons.OK_CANCEL)
+  var book_count = Browser.inputBox("返却をする本の冊数を入力してください\\n貸出のときにメールに届いたバーコードを使用する方\\nはここで読み込んでください。\\n(10冊以上の場合は複数回に分けてください。)", Browser.Buttons.OK_CANCEL)
   if (book_count == "cancel") {
     Browser.msgBox("登録を中断します。今までの作業分を登録するか、破棄してください。");
     var rog_msg = "~返却処理を中断~を実行しました。/返却";
@@ -526,7 +531,8 @@ function rental_end() {
         var getcell = isExisted + 1;
         //check
         var check = mail_sheet.getRange(getcell, 8).getValue();
-        if (check == "0" || check == "1") {
+        //checkが3のときに注意書きを書く処理を追加
+        if (check == "0" || check == "1" || check == "3") {
           Logger.log("正解の処理")
           //check
           var wirte = mail_sheet.getRange(getcell, 8).setValue(2);
@@ -741,14 +747,79 @@ function return_notice() {
 
 }
 
+//返却期限が過ぎている本のリストアップとメール送信
+function Expired_return_date() {
+  var ture_count = 0;
+  var active_sheet = SpreadsheetApp.getActiveSpreadsheet(); //現在のシート取得
+  var mail_sheet = active_sheet.getSheetByName("メール処理用");//指定名のシート取得
+  var lastrow = mail_sheet.getLastRow() - 1;
+  var status = mail_sheet.getRange(2, 8, lastrow).getValues();
+  Logger.log(status)
+  var date_list = mail_sheet.getRange(2, 3, lastrow).getValues().flat();//Sat Oct 22 00:00:00 GMT+09:00 2022
+  Logger.log(date_list)
+  var date_list_str = []
+  for (var i = 0; i < date_list.length; i++) {
+    var dates = Utilities.formatDate(date_list[i], 'JST', 'yyyy-MM-dd').toString();
+    date_list_str.push(dates)
+  }
+  Logger.log(date_list_str)
+  var today = new Date();
+  today.setDate(today.getDate() - 1);
+  var today = Utilities.formatDate(today, 'JST', 'yyyy-MM-dd').toString();
+
+  Logger.log(today);
+  var count = status.length;
+  Logger.log(count)
+  var zero_list = [];
+  for (var i = 0; i < count; i++) {
+    var isExisted = status[i].indexOf(1)
+    if (isExisted != -1) {
+      zero_list.push(i)
+    }
+  }
+  Logger.log(zero_list)//if文をかいて　翌日の日付と比較して　turuの場合のみメール送信　それ以外はspkip処理　(return処理はNG)2022/10/15
+  try {
+    for (var i = 0; i < zero_list.length; i++) {
+      var get_lastrow = zero_list[i] + 2
+      var mail_address = mail_sheet.getRange(get_lastrow, 2).getValue();
+      var mail_url = mail_sheet.getRange(get_lastrow, 4).getValue();
+      var book_title = mail_sheet.getRange(get_lastrow, 6).getValue().split(",");
+      var count = mail_sheet.getRange(get_lastrow, 5).getValue().split(",");
+      var recipient = mail_address;//送信先のメールアドレス
+      var day = mail_sheet.getRange(get_lastrow, 3).getValue();
+      var day_str = Utilities.formatDate(day, 'JST', 'yyyy-MM-dd').toString();
+
+      var subject = '【超重要】本の返却期限が過ぎています！！'; 　　     　 　//件名
+      var body = ("いつもご利用ありがとうございます。\n\nNS高等学校福岡キャンパス図書管理システムです。\n\n返却期限過ぎている本がありますので、お知らせいたします。\n\n返却期限を過ぎている本が[" + count.length + "]冊あります。\n\n詳細は以下を確認してください。\n速やかに返却をお願いします。\n場合によっては図書委員からお声掛けさせて頂く場合がありますのでご了承ください。\n\n返却期限を過ぎている本\n---------------------------\n" + book_title.join("\n\n") + "\n---------------------------\n返却時に以下のバーコードを使うとすぐに返却することができます！\n\n" + mail_url)
+      const options = { name: 'NS高福岡キャンパス図書委員会:図書管理システム【自動送信】' };  //送信者
+      if (day_str === today) {
+        GmailApp.sendEmail(recipient, subject, body, options);//メール送信処理
+        var write = mail_sheet.getRange(get_lastrow, 8).setValue(3)
+        Logger.log("メール送信済み")
+        var ture_count = ture_count+1
+      } else {
+        continue;
+      }
+    }
+    var rog_msg = "~返却期限超過のお知らせ~を実行しました。メール処理用　処理件数→　" + ture_count + "    Gmail残り回数→" + MailApp.getRemainingDailyQuota();
+    write_rog(rog_msg);
+  } catch (e) {
+    var rog_msg = "~返却翌日の最終メール送信処理が失敗しました。~/メール処理用";
+    write_rog(rog_msg);
+    return;
+  }
+}
+
 function write_rog(rog_msg) {
   var active_sheet = SpreadsheetApp.getActiveSpreadsheet(); //現在のシート取得
   var rog_sheet_get = active_sheet.getSheetByName("履歴");//指定名のシート取得
   rog_sheet_get.insertRows(2, 1);
   var mode = "本処理モード"
+  var mode = "テスト処理モード"
+
   var date = new Date()
   var user_name = Session.getActiveUser();
-  if (user_name == ""){
+  if (user_name == "") {
     user_name = "onOpen関数"
   }
   var sheet = rog_sheet_get.getRange("A2");
@@ -758,9 +829,4 @@ function write_rog(rog_msg) {
   var sheet = rog_sheet_get.getRange("C2");
   var write = sheet.setValue(user_name);
 }
-
-
-
-
-
 
