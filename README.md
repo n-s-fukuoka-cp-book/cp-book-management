@@ -62,7 +62,7 @@
 ***
 ## in_new_dataについて
 >　この関数について
-* 大型導入用で最終レンタル日を1８９９/12/30に指定します。
+* 大型導入用で最終レンタル日を1899/12/30に指定します。
 * 大型導入用で貸し出し状況を貸出可に指定します。
 * 貸し出し回数を00回に指定します。
  > タイプ
@@ -91,7 +91,16 @@
  * 補足情報　⇛検索がなかなかしびあです。
 ***
 ## search_sheet_clearについて
+
 ## test_sibnについて
+## rental_startについて
+## rental_endについて
+## rental_sheet_clearについて
+## double_deleteについて
+## return_noticeについて
+## Expired_return_dateについて
+## write_rogについて
+
 
  > タイプ
  * 所属シート　⇛
