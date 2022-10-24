@@ -1,5 +1,5 @@
 function onOpen(){
-  Browser.msgBox("いつもご利用ありがとうございます。\\n\\nこちらのシートを利用注意点\\n・検索・貸出・返却以外は扱わないようにお願いします。\\n・基本的にセルを編集する動作はないので直接数字を入力などはしないでください\\n（ボタンを押して処理する動作のみでお願いします。）\\n・メールアドレスを入力する箇所がありますが、ニックネームなどを利用されて構いません。\\n（メールアドレス入れていただくと、より便利に使うことができます。）\\n\\nなにか不明な点がありましたら、お近くの図書委員にお声掛けください。")
+  Browser.msgBox("いつもご利用ありがとうございます。\\n\\nこちらのシートを利用注意点\\n・検索・貸出・返却以外は扱わないようにお願いします。\\n・基本的にセルを編集する動作はないので直接数字を入力などはしないでください\\n　（ボタンを押して処理する動作のみでお願いします。）\\n・メールアドレスを入力する箇所がありますが、ニックネームなどを利用されて構いません。\\n　（メールアドレス入れていただくと、より便利に使うことができます。）\\n\\nなにか不明な点がありましたら、お近くの図書委員にお声掛けください。")
   search_sheet_clear()
 }
 
@@ -327,7 +327,7 @@ function search_sheet_clear() {
 
 function test_isbn() {
   var sheet = SpreadsheetApp.getActiveSpreadsheet(); //現在のシート取得
-  var sheet = sheet.getSheetByName("test_data");//指定名のシート取得
+  var sheet = sheet.getSheetByName("DB");//指定名のシート取得
   var lastrow = sheet.getLastRow() + 1;
   var isbn = 9784094030690;
   for (var i = 1; i < 300; i++) {
@@ -728,7 +728,7 @@ function return_notice() {
 
       var subject = '【重要】本の返却期限が迫っています'; 　　     　 　//件名
       var body = ("いつもご利用ありがとうございます。\n\nNS高等学校福岡キャンパス図書管理システムです。\n\n返却期限が明日に迫っている本がありますので、お知らせいたします。\n\n返却期限が迫ってる本が[" + count.length + "]冊あります。\n\n詳細は以下を確認してください。\n\返却期限が迫っている本\n---------------------------\n" + book_title.join("\n\n") + "\n---------------------------\n返却時に以下のバーコードを使うとすぐに返却することができます！\n\n" + mail_url)
-      const options = { name: 'NS高福岡キャンパス図書委員会:図書管理システム【自動送信】' };  //送信者
+      var options = { name: 'NS高福岡キャンパス図書委員会:図書管理システム【自動送信】' };  //送信者
       if (day_str === today) {
         GmailApp.sendEmail(recipient, subject, body, options);//メール送信処理
         var write = mail_sheet.getRange(get_lastrow, 8).setValue(1)
