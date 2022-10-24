@@ -127,7 +127,7 @@
 >この関数について
 * この関数では本の貸し出しを行います。
 * 一度に貸し出し可能な冊数は10冊に制限します。（10冊以上の場合は複数回に分けて処理してください。）
-* メールアドレスを入力した場合はスムーズに返却できるバーコードを送信したり、返却のお知らせなどを行います。（詳細は[double_deleteについて](https://github.com/n-s-fukuoka-cp-book/cp-book-management/blob/main/README.md#rental_start%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6),[return_noticeについて](https://github.com/n-s-fukuoka-cp-book/cp-book-management/blob/main/README.md#rental_start%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6)を確認してください。）
+* メールアドレスを入力した場合はスムーズに返却できるバーコードを送信したり、返却のお知らせなどを行います。（詳細は[return_noticeについて](https://github.com/n-s-fukuoka-cp-book/cp-book-management/blob/main/README.md#return_notice%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6),[Expired_return_dateについて](https://github.com/n-s-fukuoka-cp-book/cp-book-management/blob/main/README.md#expired_return_date%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6)を確認してください。）
 * メールアドレスを使用した場合のみ、「メール処理用」に情報が追加されます。理論上は999999999999さつまで登録可能です。
 * メールアドレスを使用しない場合はニックネームを入力してください。 
 * nnn.ed.jpのドメインで判定を行っていますので、それ以外のアドレスは使用不可です。
